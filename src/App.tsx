@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import GenerateWorkout from "./GenerateWorkout";
 
 function App() {
   const greeting: string = "Name, please";
   const [displayText, setDisplayText] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [dash, setDash] = useState<boolean>(false);
+  const [generate, setGenerate] = useState(false);
   const indexRef = useRef(-1);
   const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -33,15 +35,22 @@ function App() {
 
   return (
     <>
-      <h1>Welcome!</h1>
-      <p>{displayText}</p>
-      <input
-        type="text"
-        placeholder={dash ? "___" : " "}
-        onChange={(e) => setName(e.target.value)}
-        onFocus={handleFocus}
-      />
-      <button>Sign in {name}</button>
+      {!generate && (
+        <div>
+          <h1>Welcome!</h1>
+          <p>{displayText}</p>
+          <form onSubmit={() => setGenerate(true)}>
+            <input
+              type="text"
+              placeholder={dash ? "___" : " "}
+              onChange={(e) => setName(e.target.value)}
+              onFocus={handleFocus}
+            />
+            <button type="submit">Sign in</button>
+          </form>
+        </div>
+      )}
+      {generate && <GenerateWorkout name={name} />}
     </>
   );
 }
