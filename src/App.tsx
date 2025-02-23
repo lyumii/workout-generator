@@ -15,7 +15,7 @@ function App() {
     const interval = setInterval(() => {
       indexRef.current += 1;
       setDisplayText((prev) => prev + greeting.charAt(indexRef.current));
-    }, 400);
+    }, 200);
     return () => clearInterval(interval);
   }, [displayText]);
 
@@ -23,7 +23,7 @@ function App() {
     if (displayText === "Name, please") {
       intervalRef.current = setInterval(() => {
         setDash((prev) => !prev);
-      }, 400);
+      }, 200);
     }
     return () => clearInterval(intervalRef.current!);
   }, [displayText]);
