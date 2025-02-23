@@ -7,24 +7,34 @@ interface GenerateWorkoutProps {
 }
 
 export default function GenerateWorkout(props: GenerateWorkoutProps) {
-  const [upperBodyFilter, setUpperBodyFilter] = React.useState(false);
-  const [lowerBodyFilter, setLowerBodyFilter] = React.useState(false);
-  const [fullBodyFilter, setFullBodyFilter] = React.useState(false);
-  const [coreFilter, setCoreFilter] = React.useState(false);
-  const [mobilityFilter, setMobilityFilter] = React.useState(false);
-  const [beginnerFilter, setBeginnerFilter] = React.useState(true);
-  const [intermediateFilter, setIntermediateFilter] = React.useState(false);
-  const [advancedFilter, setAdvancedFilter] = React.useState(false);
+  // const [upperBodyFilter, setUpperBodyFilter] = React.useState(false);
+  // const [lowerBodyFilter, setLowerBodyFilter] = React.useState(false);
+  // const [fullBodyFilter, setFullBodyFilter] = React.useState(false);
+  // const [coreFilter, setCoreFilter] = React.useState(false);
+  // const [mobilityFilter, setMobilityFilter] = React.useState(false);
+  // const [beginnerFilter, setBeginnerFilter] = React.useState(true);
+  // const [intermediateFilter, setIntermediateFilter] = React.useState(false);
+  // const [advancedFilter, setAdvancedFilter] = React.useState(false);
+  const [filters, setFilters] = React.useState({
+    upperBody: false,
+    lowerBody: false,
+    fullBody: false,
+    core: false,
+    mobility: false,
+    beginner: true,
+    intermediate: false,
+    advanced: false,
+  });
 
   const activeFilters = {
-    "Upper Body": upperBodyFilter,
-    Legs: lowerBodyFilter,
-    "Full Body": fullBodyFilter,
-    Core: coreFilter,
-    Mobility: mobilityFilter,
-    Beginner: beginnerFilter,
-    Intermediate: intermediateFilter,
-    Advanced: advancedFilter,
+    "Upper Body": filters.upperBody,
+    Legs: filters.lowerBody,
+    "Full Body": filters.fullBody,
+    Core: filters.core,
+    Mobility: filters.mobility,
+    Beginner: filters.beginner,
+    Intermediate: filters.intermediate,
+    Advanced: filters.advanced,
   };
 
   const filteredWorkout = () => {
@@ -42,93 +52,55 @@ export default function GenerateWorkout(props: GenerateWorkoutProps) {
     return categoriedWorkout && difficultyFiltered;
   };
 
+  const handleCategoryClick = (category: keyof typeof filters) => {
+    setFilters((prev) => ({
+      ...prev,
+      upperBody: false,
+      lowerBody: false,
+      fullBody: false,
+      core: false,
+      mobility: false,
+      [category]: true,
+    }));
+  };
+
+  const handleDifficultyClick = (difficulty: keyof typeof filters) => {
+    setFilters((prev) => ({
+      ...prev,
+      beginner: false,
+      intermediate: false,
+      advanced: false,
+      [difficulty]: true,
+    }));
+  };
+
   return (
     <>
       <h1>Hello, {props.name}</h1>
       <h2>What would you like to do today?</h2>
       <div>
-        <button
-          onClick={() => {
-            setLowerBodyFilter(false);
-            setCoreFilter(false);
-            setFullBodyFilter(false);
-            setMobilityFilter(false);
-            setUpperBodyFilter(true);
-          }}
-        >
+        <button onClick={() => handleCategoryClick("upperBody")}>
           Upper Body
         </button>
-        <button
-          onClick={() => {
-            setLowerBodyFilter(true);
-            setCoreFilter(false);
-            setFullBodyFilter(false);
-            setMobilityFilter(false);
-            setUpperBodyFilter(false);
-          }}
-        >
+        <button onClick={() => handleCategoryClick("lowerBody")}>
           Lower Body
         </button>
-        <button
-          onClick={() => {
-            setLowerBodyFilter(false);
-            setCoreFilter(false);
-            setFullBodyFilter(true);
-            setMobilityFilter(false);
-            setUpperBodyFilter(false);
-          }}
-        >
+        <button onClick={() => handleCategoryClick("fullBody")}>
           Full Body
         </button>
-        <button
-          onClick={() => {
-            setLowerBodyFilter(false);
-            setCoreFilter(true);
-            setFullBodyFilter(false);
-            setMobilityFilter(false);
-            setUpperBodyFilter(false);
-          }}
-        >
-          Core
-        </button>
-        <button
-          onClick={() => {
-            setLowerBodyFilter(false);
-            setCoreFilter(false);
-            setFullBodyFilter(false);
-            setMobilityFilter(true);
-            setUpperBodyFilter(false);
-          }}
-        >
+        <button onClick={() => handleCategoryClick("core")}>Core</button>
+        <button onClick={() => handleCategoryClick("mobility")}>
           Mobility
         </button>
       </div>
       <div>
-        <button
-          onClick={() => {
-            setBeginnerFilter(true);
-            setIntermediateFilter(false);
-            setAdvancedFilter(false);
-          }}
-        >
+        <button onClick={() => handleDifficultyClick("beginner")}>
           Beginner
         </button>
-        <button
-          onClick={() => {
-            setBeginnerFilter(false);
-            setIntermediateFilter(true);
-            setAdvancedFilter(false);
-          }}
-        >
+        <button onClick={() => handleDifficultyClick("intermediate")}>
           Intermediate
         </button>
-        <button
-          onClick={() => {
-            setBeginnerFilter(false);
-            setIntermediateFilter(false);
-            setAdvancedFilter(true);
-          }}
-        >
+        <button onClick={() => handleDifficultyClick("advanced")}>
           Advanced
         </button>
       </div>
