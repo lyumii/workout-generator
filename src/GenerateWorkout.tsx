@@ -69,44 +69,90 @@ export default function GenerateWorkout(props: GenerateWorkoutProps) {
   return (
     <>
       <h1>Hello, {props.name}</h1>
-      <h2>What would you like to do today?</h2>
-      <div>
-        <button onClick={() => handleCategoryClick("upperBody")}>
+      <h2 className="greet">What would you like to do today?</h2>
+      <div className="buttons-categories">
+        <button
+          onClick={() => handleCategoryClick("upperBody")}
+          className={filters.upperBody ? "selected" : ""}
+          style={{ backgroundColor: "#F5A623" }}
+        >
           Upper Body
         </button>
-        <button onClick={() => handleCategoryClick("lowerBody")}>
+        <button
+          onClick={() => handleCategoryClick("lowerBody")}
+          className={filters.lowerBody ? "selected" : ""}
+          style={{ backgroundColor: "#FFD166" }}
+        >
           Lower Body
         </button>
-        <button onClick={() => handleCategoryClick("fullBody")}>
+        <button
+          onClick={() => handleCategoryClick("fullBody")}
+          className={filters.fullBody ? "selected" : ""}
+          style={{ backgroundColor: "#06D6A0" }}
+        >
           Full Body
         </button>
-        <button onClick={() => handleCategoryClick("core")}>Core</button>
-        <button onClick={() => handleCategoryClick("mobility")}>
+        <button
+          onClick={() => handleCategoryClick("core")}
+          className={filters.core ? "selected" : ""}
+          style={{ backgroundColor: "#4ECDC4" }}
+        >
+          Core
+        </button>
+        <button
+          onClick={() => handleCategoryClick("mobility")}
+          className={filters.mobility ? "selected" : ""}
+          style={{ backgroundColor: "#C3E88D" }}
+        >
           Mobility
         </button>
       </div>
-      <div>
-        <button onClick={() => handleDifficultyClick("beginner")}>
+      <div className="buttons-difficulty">
+        <button
+          onClick={() => handleDifficultyClick("beginner")}
+          className={filters.beginner ? "selected" : ""}
+          style={{ backgroundColor: "#A29BFE" }}
+        >
           Beginner
         </button>
-        <button onClick={() => handleDifficultyClick("intermediate")}>
+        <button
+          onClick={() => handleDifficultyClick("intermediate")}
+          className={filters.intermediate ? "selected" : ""}
+          style={{ backgroundColor: "#8C9EFF" }}
+        >
           Intermediate
         </button>
-        <button onClick={() => handleDifficultyClick("advanced")}>
+        <button
+          onClick={() => handleDifficultyClick("advanced")}
+          className={filters.advanced ? "selected" : ""}
+          style={{ backgroundColor: "#67D5FF" }}
+        >
           Advanced
         </button>
       </div>
       <div>
-        {filteredWorkout().map((item) =>
-          item.workouts.map((workout, workoutIndex) => (
-            <WorkoutCard
-              key={`${workout.name}-${workoutIndex}`}
-              name={workout.name}
-              sets={workout.sets}
-              reps={workout.sets}
-            />
-          ))
-        )}
+        {(() => {
+          const filteredWorkouts = filteredWorkout();
+
+          if (!filteredWorkouts.length) {
+            return (
+              <p className="notavailablep">
+                No workout available with those filters
+              </p>
+            );
+          }
+
+          return filteredWorkouts.map((item) =>
+            item.workouts.map((workout, workoutIndex) => (
+              <WorkoutCard
+                key={`${workout.name}-${workoutIndex}`}
+                name={workout.name}
+                sets={workout.sets}
+                reps={workout.reps ?? "N/A"}
+              />
+            ))
+          );
+        })()}
       </div>
     </>
   );

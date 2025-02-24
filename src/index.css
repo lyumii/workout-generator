@@ -83,8 +83,85 @@ h1 {
   transition: all 0.3s ease;
 }
 
+.notgeneratedcontainer input {
+  margin-top: 2vh;
+  background-color: #333;
+  color: azure;
+  box-shadow: none;
+  border: #5a5a5a 0.1em solid;
+}
+
 @keyframes scale {
   100% {
     transform: scale(1.1);
+  }
+}
+
+.buttons-categories,
+.buttons-difficulty {
+  width: 40%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1vh;
+}
+
+button {
+  border: none;
+}
+
+.buttons-categories button,
+.buttons-difficulty button {
+  flex: 1;
+  margin: 0.1em;
+  padding: 0.3em;
+  color: azure;
+  font-weight: 600;
+}
+
+.buttons-categories button:hover,
+.buttons-difficulty button:hover,
+.selected {
+  scale: 1.1;
+  border: azure 0.1em solid;
+}
+
+.notavailablep {
+  text-align: center;
+  width: 40%;
+  color: azure;
+  padding: 1vh;
+}
+
+.carddiv {
+  background-color: #5a5a5a;
+  width: 40%;
+  margin: 1vh;
+  margin-left: 0;
+  border-radius: 5px;
+  color: azure;
+  padding: 0.5vh;
+  border: 3px solid;
+  border-image: linear-gradient(45deg, #f5a623, #06d6a0, #8c9eff, #ff6b6b) 1;
+  animation: borderAnimation 3s infinite linear;
+}
+
+@keyframes borderAnimation {
+  0% {
+    border-image-source: linear-gradient(
+      45deg,
+      #f5a623,
+      #06d6a0,
+      #8c9eff,
+      #ff6b6b
+    );
+  }
+  100% {
+    border-image-source: linear-gradient(
+      45deg,
+      #ff6b6b,
+      #8c9eff,
+      #06d6a0,
+      #f5a623
+    );
   }
 }
