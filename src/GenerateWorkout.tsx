@@ -7,14 +7,6 @@ interface GenerateWorkoutProps {
 }
 
 export default function GenerateWorkout(props: GenerateWorkoutProps) {
-  // const [upperBodyFilter, setUpperBodyFilter] = React.useState(false);
-  // const [lowerBodyFilter, setLowerBodyFilter] = React.useState(false);
-  // const [fullBodyFilter, setFullBodyFilter] = React.useState(false);
-  // const [coreFilter, setCoreFilter] = React.useState(false);
-  // const [mobilityFilter, setMobilityFilter] = React.useState(false);
-  // const [beginnerFilter, setBeginnerFilter] = React.useState(true);
-  // const [intermediateFilter, setIntermediateFilter] = React.useState(false);
-  // const [advancedFilter, setAdvancedFilter] = React.useState(false);
   const [filters, setFilters] = React.useState({
     upperBody: false,
     lowerBody: false,
