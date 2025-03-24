@@ -2,11 +2,7 @@ import WorkoutLibrary from "./WorkoutLibrary";
 import React from "react";
 import WorkoutCard from "./WorkoutCard";
 
-interface GenerateWorkoutProps {
-  name: string;
-}
-
-export default function GenerateWorkout(props: GenerateWorkoutProps) {
+export default function BrowseWorkouts() {
   const [filters, setFilters] = React.useState({
     upperBody: false,
     lowerBody: false,
@@ -68,8 +64,6 @@ export default function GenerateWorkout(props: GenerateWorkoutProps) {
 
   return (
     <>
-      <h1>Hello, {props.name}</h1>
-      <h2 className="greet">What would you like to do today?</h2>
       <div className="buttons-categories">
         <button
           onClick={() => handleCategoryClick("upperBody")}

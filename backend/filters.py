@@ -1,0 +1,163 @@
+import re
+from models import db, Workout
+from sqlalchemy import or_
+from sqlalchemy.sql.expression import func
+
+def prompt_filters(prompt):
+    prompt = prompt.lower()
+    workout_type = {
+        "Upper": {
+            "biceps": ["biceps", "guns", "bi's", "bis", "front arm", "front arms", "bicep", "pipes"],
+            "triceps": [ "triceps", "back arm", "back arms", "tris", "tri's", "tricep", "horseshoe"],
+            "back": ["teres", "latissimus", "lats", "back", "traps", "trapezius", "lat", "rhomboids"],
+            "chest": ["chest", "pecs", "pectorals", "boobs", "boob"],
+            "anterior": ["front delts", "front delt", "anterior delt", "anterior delts"],
+            "lateral": ["lat delts", "lat delt", "lateral delts", "lateral delt", "side delt", "side delts"],
+            "posterior": ["rear delt", "rear delts", "posterior delt", "posterior delts"]
+        },
+        "Legs": {
+            "glutes": ["butt", "ass", "booty", "glutes", "glute"],
+            "quads": ["quads", "quadriceps"],
+            "hams": ["hamstrings", "hams"]
+        },
+        "Core": {
+            "abs": ["abs", "abdominals", "six pack"],
+            "obliques": ["obliques", "sides"],
+            "lower_back": ["lower back", "erector spinae", "lumbar", "spinal erectors"]
+        }
+    }
+
+    difficulty_levels = {
+        "easy": ["beginner", "easy", "simple"],
+        "medium": ["medium", "intermediate"],
+        "hard": ["hard", "advanced", "difficult"]
+    }
+
+    equipment = {
+        "bodyweight": ["bodyweight", "just body", "no weights"],
+        "dumbbell": ["dumbbells", "dumbbell"],
+        "barbell": ["barbell", "barbells"],
+        "cable": ["cable", "cables"]
+    }
+
+    filters = {
+        "muscles": [],
+        "diff": "medium",
+        "equip": None,
+        "count": 10
+    }
+
+
+    matched_muscles = set()
+    for subgroups in workout_type.values():
+        for muscle_group, keywords in subgroups.items():
+            if any(keyword in prompt for keyword in keywords):
+                matched_muscles.add(muscle_group)
+
+    if matched_muscles:
+        filters["muscles"] = list(matched_muscles)
+    elif any(phrase in prompt for phrase in ["upper", "upper body"]):
+        for subgroups in workout_type.values():
+            filters["muscles"].extend(workout_type["Upper"].keys())
+    elif any(phrase in prompt for phrase in ["push"]):
+        for subgroups in workout_type.values():
+            filters["muscles"].extend(["chest", "triceps", "anterior", "lateral"])
+    elif any(phrase in prompt for phrase in ["pull"]):
+        for subgroups in workout_type.values():
+            filters["muscles"].extend(["back", "biceps", "posterior"])
+    elif any(phrase in prompt for phrase in ["leg", "legs", "lower body"]):
+        for subgroups in workout_type.values():
+            filters["muscles"].extend(workout_type["Legs"].keys()) 
+    elif any(phrase in prompt for phrase in ["core", "tummy", "trunk", "stomach"]):
+        for subgroups in workout_type.values():
+            filters["muscles"].extend(workout_type["Core"].keys())
+    elif any(phrase in prompt for phrase in ["delt", "delts", "shoulder", "shoulders"]):
+        for subgroups in workout_type.values():
+            filters["muscles"].extend(["lateral", "posterior", "anterior"])
+    elif any(phrase in prompt for phrase in ["arm", "arms"]):
+        for subgroups in workout_type.values():
+            filters["muscles"].extend(["biceps", "triceps"])
+    elif any(phrase in prompt for phrase in ["full body", "fullbody"]):
+        for subgroups in workout_type.values():
+            filters["muscles"].extend(subgroups.keys())
+
+    for diff, keywords in difficulty_levels.items():
+        if any(keyword in prompt for keyword in keywords):
+            filters["diff"] = diff
+
+    for equip, keywords in equipment.items():
+        if any(keyword in prompt for keyword in keywords):
+            filters["equip"] = equip
+
+    
+    match = re.search(r"\b\d+\b", prompt)
+    if match:
+        filters["count"] = int(match.group())
+    
+
+    return filters
+
+
+def get_filtered_workout(filters):
+    print("🔍 Filters received:", filters)
+    query = db.session.query(Workout)
+    if filters["muscles"]:
+        muscle_conditions = [
+            Workout.targeted_muscles.ilike(f"%{muscle}%") for muscle in filters["muscles"]
+        ]
+        query = query.filter(or_(*muscle_conditions))
+
+    if filters["diff"]:
+        query = query.filter(Workout.difficulty == filters["diff"])
+
+    if filters["equip"]:
+        query = query.filter(Workout.equipment.ilike(f"%{filters['equip']}%"))
+    query = query.order_by(func.random()) 
+    all_results = query.all()
+
+    def ratio_filters(data, muscles, count):
+        def get_muscle_grp(muscles):
+            if all(m in muscles for m in['biceps', 'triceps', 'back', 'chest', 'anterior', 'lateral', 'posterior', 'glutes', 'quads', 'hams', 'abs', 'obliques', 'lower_back']):
+                return "fullbody"
+            elif all(m in muscles for m in ["quads", "hams", "glutes"]):
+                return "legs"
+            elif all(m in muscles for m in ["back", "chest", "anterior", "lateral", "posterior", "biceps", "triceps"]):
+                return "upperbody"
+            elif all(m in muscles for m in ["biceps", "triceps"]):
+                return "arms"
+            elif all(m in muscles for m in ["abs", "obliques", "lower_back"]):
+                return "core"
+            
+        muscle_group = get_muscle_grp(muscles) 
+        print("💡 muscle_group:", muscle_group)   
+        def get_muscle_distribution(muscles, count, order):
+            prioritized = [m for m in order if m in muscles] 
+
+            if count <= len(prioritized):
+                return {m: 1 for m in prioritized[:count]}
+            base = count // len(prioritized)
+            extra = count % len(prioritized)
+
+            distribution = {}
+            for i, m in enumerate(prioritized):
+                distribution[m] = base + (1 if i < extra else 0)
+            return distribution
+
+        match muscle_group:
+            case "fullbody":
+                priority = ["back", "chest", "anterior", "glutes", "quads", "abs", "hams", "biceps", "triceps", "obliques"]
+            
+
+        distribution = get_muscle_distribution(muscles, count, priority)
+
+        selected = []
+        for muscle, num in distribution.items():
+            matches = [w for w in data if muscle in w.targeted_muscles]
+            selected.extend(matches[:num])
+
+        return selected
+                    
+
+    full_query = ratio_filters(all_results, filters["muscles"], filters["count"])
+    print("🧪 Final SQL query:", str(query))
+    return full_query
