@@ -55,31 +55,35 @@ def prompt_filters(prompt):
                 matched_muscles.add(muscle_group)
 
     if matched_muscles:
-        filters["muscles"] = list(matched_muscles)
-    elif any(phrase in prompt for phrase in ["upper", "upper body"]):
+        filters["muscles"] = list(dict.fromkeys(filters["muscles"]))
+
+    if any(phrase in prompt for phrase in ["upper", "upper body"]):
         for subgroups in workout_type.values():
             filters["muscles"].extend(workout_type["Upper"].keys())
-    elif any(phrase in prompt for phrase in ["push"]):
+    if any(phrase in prompt for phrase in ["push"]):
         for subgroups in workout_type.values():
             filters["muscles"].extend(["chest", "triceps", "anterior", "lateral"])
-    elif any(phrase in prompt for phrase in ["pull"]):
+    if any(phrase in prompt for phrase in ["pull"]):
         for subgroups in workout_type.values():
             filters["muscles"].extend(["back", "biceps", "posterior"])
-    elif any(phrase in prompt for phrase in ["leg", "legs", "lower body"]):
+    if any(phrase in prompt for phrase in ["leg", "legs", "lower body"]):
         for subgroups in workout_type.values():
             filters["muscles"].extend(workout_type["Legs"].keys()) 
-    elif any(phrase in prompt for phrase in ["core", "tummy", "trunk", "stomach"]):
+    if any(phrase in prompt for phrase in ["core", "tummy", "trunk", "stomach"]):
         for subgroups in workout_type.values():
             filters["muscles"].extend(workout_type["Core"].keys())
-    elif any(phrase in prompt for phrase in ["delt", "delts", "shoulder", "shoulders"]):
+    if any(phrase in prompt for phrase in ["delt", "delts", "shoulder", "shoulders"]):
         for subgroups in workout_type.values():
             filters["muscles"].extend(["lateral", "posterior", "anterior"])
-    elif any(phrase in prompt for phrase in ["arm", "arms"]):
+    if any(phrase in prompt for phrase in ["arm", "arms"]):
         for subgroups in workout_type.values():
             filters["muscles"].extend(["biceps", "triceps"])
-    elif any(phrase in prompt for phrase in ["full body", "fullbody"]):
+    if any(phrase in prompt for phrase in ["full body", "fullbody"]):
         for subgroups in workout_type.values():
             filters["muscles"].extend(subgroups.keys())
+    
+    filters["muscles"] = list(dict.fromkeys(filters["muscles"]))
+
 
     for diff, keywords in difficulty_levels.items():
         if any(keyword in prompt for keyword in keywords):
@@ -117,16 +121,28 @@ def get_filtered_workout(filters):
 
     def ratio_filters(data, muscles, count):
         def get_muscle_grp(muscles):
-            if all(m in muscles for m in['biceps', 'triceps', 'back', 'chest', 'anterior', 'lateral', 'posterior', 'glutes', 'quads', 'hams', 'abs', 'obliques', 'lower_back']):
+            if set(muscles) == {
+                'biceps', 'triceps', 'back', 'chest', 'anterior', 'lateral',
+                'posterior', 'glutes', 'quads', 'hams', 'abs', 'obliques', 'lower_back'
+            }:
                 return "fullbody"
-            elif all(m in muscles for m in ["quads", "hams", "glutes"]):
+            elif set(muscles) == {"glutes", "quads", "hams"}:
                 return "legs"
-            elif all(m in muscles for m in ["back", "chest", "anterior", "lateral", "posterior", "biceps", "triceps"]):
+            elif set(muscles) == {"back", "chest", "anterior", "lateral", "posterior", "biceps", "triceps"}:
                 return "upperbody"
-            elif all(m in muscles for m in ["biceps", "triceps"]):
+            elif set(muscles) == {"anterior", "posterior", "lateral"}:
+                return "shoulders"
+            elif set(muscles) == {"biceps", "triceps"}:
                 return "arms"
-            elif all(m in muscles for m in ["abs", "obliques", "lower_back"]):
+            elif set(muscles) == {"abs", "obliques", "lower_back"}:
                 return "core"
+            elif set(muscles) == {"chest", "triceps", "anterior", "lateral"}:
+                return "push"
+            elif set(muscles) == {"back", "biceps", "posterior"}:
+                return "pull"
+            else:
+                return "custom"
+
             
         muscle_group = get_muscle_grp(muscles) 
         print("💡 muscle_group:", muscle_group)   
@@ -146,6 +162,24 @@ def get_filtered_workout(filters):
         match muscle_group:
             case "fullbody":
                 priority = ["back", "chest", "anterior", "glutes", "quads", "abs", "hams", "biceps", "triceps", "obliques"]
+            case "legs":
+                priority = ["glutes", "quads", "hams"]
+            case "upperbody":
+                priority = ["chest", "back", "anterior", "biceps", "lateral", "triceps", "posterior"]
+            case "shoulders":
+                priority = ["anterior", "lateral", "posterior"]
+            case "arms":
+                priority = ["biceps", "triceps"]
+            case "push":
+                priority = ["chest", "anterior", "lateral", "triceps"]
+            case "pull":
+                priority = ["back", "posterior", "biceps"]
+            case "core":
+                priority = ["abs", "obliques", "lower_back"]
+            case _:
+                priority = (muscles * (count // len(muscles))) + muscles[:(count % len(muscles))]
+
+        print(priority)
             
 
         distribution = get_muscle_distribution(muscles, count, priority)
@@ -154,7 +188,8 @@ def get_filtered_workout(filters):
         for muscle, num in distribution.items():
             matches = [w for w in data if muscle in w.targeted_muscles]
             selected.extend(matches[:num])
-
+        
+        print(selected)
         return selected
                     
 
