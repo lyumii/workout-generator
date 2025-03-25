@@ -1,8 +1,8 @@
 export interface WorkoutCardProps {
   id?: number;
   name: string;
-  equipment: string;
-  targeted_muscles: string[];
+  equipment?: string;
+  targeted_muscles?: string[];
   sets: number;
   reps: number | string;
 }
