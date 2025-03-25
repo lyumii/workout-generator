@@ -1,5 +1,6 @@
 import BrowseWorkouts from "./BrowseWorkouts";
 import ChoiceButtons from "./ChoiceButtons";
+import GenerateWorkout from "./GenerateWorkout";
 import Header from "./Header";
 import colors from "./colors";
 import { useState, useEffect, useRef } from "react";
@@ -34,6 +35,7 @@ function App() {
         }
       />
       <Route path="/browse" element={<BrowseWorkouts />} />
+      <Route path="/generated" element={<GenerateWorkout />} />
     </Routes>
   );
 }

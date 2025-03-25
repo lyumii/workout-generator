@@ -42,17 +42,17 @@ def prompt_filters(prompt):
 
     filters = {
         "muscles": [],
-        "diff": "medium",
+        "diff": None,
         "equip": None,
         "count": 10
     }
 
 
     matched_muscles = set()
-    for subgroups in workout_type.values():
-        for muscle_group, keywords in subgroups.items():
-            if any(keyword in prompt for keyword in keywords):
-                matched_muscles.add(muscle_group)
+    for group in workout_type.values(): 
+        for muscle, keywords in group.items():
+            if any(word in prompt for word in keywords):
+                filters["muscles"].append(muscle)
 
     if matched_muscles:
         filters["muscles"] = list(dict.fromkeys(filters["muscles"]))
@@ -98,6 +98,13 @@ def prompt_filters(prompt):
     if match:
         filters["count"] = int(match.group())
     
+    print("Prompt lowercased:", prompt)
+    for muscle, keywords in workout_type.items():
+        print(f"Checking {muscle} with keywords {keywords}")
+    if any(kw in prompt for kw in keywords):
+        print(f"✅ Match found for muscle: {muscle}")
+        filters["muscles"].append(muscle)
+    
 
     return filters
 
@@ -120,6 +127,9 @@ def get_filtered_workout(filters):
     all_results = query.all()
 
     def ratio_filters(data, muscles, count):
+        if not muscles:
+            print("⚠️ No muscles provided — returning empty list")
+            return []
         def get_muscle_grp(muscles):
             if set(muscles) == {
                 'biceps', 'triceps', 'back', 'chest', 'anterior', 'lateral',
@@ -147,17 +157,24 @@ def get_filtered_workout(filters):
         muscle_group = get_muscle_grp(muscles) 
         print("💡 muscle_group:", muscle_group)   
         def get_muscle_distribution(muscles, count, order):
-            prioritized = [m for m in order if m in muscles] 
+                seen = set()
+                prioritized = []
+                for m in order:
+                    if m in muscles and m not in seen:
+                        prioritized.append(m)
+                        seen.add(m)
 
-            if count <= len(prioritized):
-                return {m: 1 for m in prioritized[:count]}
-            base = count // len(prioritized)
-            extra = count % len(prioritized)
+                if count <= len(prioritized):
+                    return {m: 1 for m in prioritized[:count]}
 
-            distribution = {}
-            for i, m in enumerate(prioritized):
-                distribution[m] = base + (1 if i < extra else 0)
-            return distribution
+                base = count // len(prioritized)
+                extra = count % len(prioritized)
+
+                distribution = {}
+                for i, m in enumerate(prioritized):
+                    distribution[m] = base + (1 if i < extra else 0)
+
+                return distribution
 
         match muscle_group:
             case "fullbody":
@@ -176,22 +193,38 @@ def get_filtered_workout(filters):
                 priority = ["back", "posterior", "biceps"]
             case "core":
                 priority = ["abs", "obliques", "lower_back"]
-            case _:
+            case "custom":
                 priority = (muscles * (count // len(muscles))) + muscles[:(count % len(muscles))]
 
         print(priority)
             
 
         distribution = get_muscle_distribution(muscles, count, priority)
+        print("🎯 Distribution breakdown:")
+        for muscle, num in distribution.items():
+            print(f"  - {muscle}: {num} workout(s)")
+
 
         selected = []
         for muscle, num in distribution.items():
-            matches = [w for w in data if muscle in w.targeted_muscles]
+            matches = [
+                w for w in data 
+                if isinstance(w.targeted_muscles, list) and muscle in w.targeted_muscles
+                or isinstance(w.targeted_muscles, str) and muscle in w.targeted_muscles.lower()
+            ]
+            print(f"IDs: {[w.id for w in matches[:num]]}")
+            print(f"→ Adding {num} workout(s) for '{muscle}' from {len(matches)} matches")
             selected.extend(matches[:num])
+        seen = set()
+        unique_selected = []
+        for w in selected:
+            if w.id not in seen:
+                unique_selected.append(w)
+                seen.add(w.id)
+        return unique_selected
         
-        print(selected)
-        return selected
-                    
+        # print(selected)
+        # return selected         
 
     full_query = ratio_filters(all_results, filters["muscles"], filters["count"])
     print("🧪 Final SQL query:", str(query))

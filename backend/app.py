@@ -14,15 +14,48 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
     print("✅ Tables created or already exist.")
+    
+
+
+
+# @app.route("/generate-workout", methods=["POST"])
+# def generate_workout():
+#     from filters import prompt_filters, get_filtered_workout
+#     print("CONTENT-TYPE:", request.content_type)
+#     print("RAW BODY:", request.data)
+#     data = request.get_json()
+#     prompt = data.get("prompt")
+
+#     filters = prompt_filters(prompt)
+#     workouts = get_filtered_workout(filters)
+
+#     return jsonify([
+#         {
+#             "id": w.id,
+#             "name": w.name,
+#             "targeted_muscles": w.targeted_muscles,
+#             "difficulty": w.difficulty,
+#             "equipment": w.equipment,
+#             "sets": w.sets,
+#             "reps": w.reps
+#         }
+#         for w in workouts
+#     ])
 
 @app.route("/generate-workout", methods=["GET", "POST"])
 def generate_workout():
+    if request.method == "GET":
+        return jsonify({"message": "This route accepts POST requests with a prompt."})
+
     from filters import prompt_filters, get_filtered_workout
+    
     print("CONTENT-TYPE:", request.content_type)
     print("RAW BODY:", request.data)
     data = request.get_json()
-    prompt = data.get("prompt")
+    if not data or "prompt" not in data:
+        return jsonify({"error": "No prompt provided"}), 400
 
+    prompt = data["prompt"]
     filters = prompt_filters(prompt)
     workouts = get_filtered_workout(filters)
 
@@ -38,6 +71,7 @@ def generate_workout():
         }
         for w in workouts
     ])
+
 
 @app.route("/add-workout", methods=["POST"])
 def add_workout():
@@ -70,6 +104,8 @@ def get_workout():
         }
         for w in workouts
     ])
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
