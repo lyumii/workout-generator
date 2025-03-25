@@ -109,7 +109,7 @@ def prompt_filters(prompt):
     return filters
 
 
-def get_filtered_workout(filters):
+def get_filtered_workout(filters, prompt):
     print("🔍 Filters received:", filters)
     query = db.session.query(Workout)
     if filters["muscles"]:
@@ -126,7 +126,7 @@ def get_filtered_workout(filters):
     query = query.order_by(func.random()) 
     all_results = query.all()
 
-    def ratio_filters(data, muscles, count):
+    def ratio_filters(data, muscles, count, prompt):
         if not muscles:
             print("⚠️ No muscles provided — returning empty list")
             return []
@@ -175,12 +175,27 @@ def get_filtered_workout(filters):
                     distribution[m] = base + (1 if i < extra else 0)
 
                 return distribution
+        
+        focus_keywords = ["focus", "emphasize", "prioritize", "mostly", "mainly", "grow", "build", "tone"]
 
         match muscle_group:
             case "fullbody":
                 priority = ["back", "chest", "anterior", "glutes", "quads", "abs", "hams", "biceps", "triceps", "obliques"]
             case "legs":
-                priority = ["glutes", "quads", "hams"]
+                if any(word in prompt for word in focus_keywords) and "hams" in prompt and "glutes" in prompt :
+                    priority = ["glutes", "glutes", "hams", "hams", "quads"]
+                elif any(word in prompt for word in focus_keywords) and "quads" in prompt and "glutes" in prompt:
+                    priority = ["glutes", "glutes", "quads", "quads", "hams"]
+                elif any(word in prompt for word in focus_keywords) and "quads" in prompt and "hams" in prompt:
+                    priority = ["quads", "quads", "hams", "hams", "glutes"]
+                elif any(word in prompt for word in focus_keywords) and "quads" in prompt:
+                    priority = ["quads", "quads", "glutes", "hams"]
+                elif any(word in prompt for word in focus_keywords) and "hams" in prompt:
+                    priority = ["hams", "hams", "quads", "glutes"]
+                elif any(word in prompt for word in focus_keywords) and "glutes" in prompt:
+                    priority = ["glutes", "glutes", "hams", "quads"]
+                else:
+                    priority = ["glutes", "hams", "quads"]
             case "upperbody":
                 priority = ["chest", "back", "anterior", "biceps", "lateral", "triceps", "posterior"]
             case "shoulders":
@@ -226,6 +241,6 @@ def get_filtered_workout(filters):
         # print(selected)
         # return selected         
 
-    full_query = ratio_filters(all_results, filters["muscles"], filters["count"])
+    full_query = ratio_filters(all_results, filters["muscles"], filters["count"], prompt)
     print("🧪 Final SQL query:", str(query))
     return full_query

@@ -57,7 +57,7 @@ def generate_workout():
 
     prompt = data["prompt"]
     filters = prompt_filters(prompt)
-    workouts = get_filtered_workout(filters)
+    workouts = get_filtered_workout(filters, prompt)
 
     return jsonify([
         {
