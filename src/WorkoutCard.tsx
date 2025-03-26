@@ -5,20 +5,26 @@ export interface WorkoutCardProps {
   targeted_muscles?: string[];
   sets: number;
   reps: number | string;
+  className?: string;
+  timestamp?: Date;
+  style?: React.CSSProperties;
 }
 
 export default function WorkoutCard(props: WorkoutCardProps) {
   return (
-    <div className="carddiv">
+    <div className={props.className} style={props.style}>
       <h3>Exercise: {props.name}</h3>
-      <p>{props.equipment}</p>
+      <p>Equipment: {props.equipment}</p>
       <p>
+        Targeted muscles:
         {Array.isArray(props.targeted_muscles)
           ? props.targeted_muscles.join(", ")
           : props.targeted_muscles}
       </p>
-      <h4>Sets: {props.sets}</h4>
-      <h4>Reps: {props.reps}</h4>
+      <div className="setrepcontainer">
+        <h4>Sets: {props.sets}</h4>
+        <h4>Reps: {props.reps}</h4>
+      </div>
     </div>
   );
 }

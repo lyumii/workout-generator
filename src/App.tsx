@@ -1,4 +1,4 @@
-import BrowseWorkouts from "./BrowseWorkouts";
+import BrowseWorkoutHistory from "./BrowseWorkoutHistory";
 import ChoiceButtons from "./ChoiceButtons";
 import GenerateWorkout from "./GenerateWorkout";
 import Header from "./Header";
@@ -24,19 +24,21 @@ function App() {
   }, []);
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <>
-            <Header color={color} headingRef={headingRef} />
-            <ChoiceButtons color={color} />
-          </>
-        }
-      />
-      <Route path="/browse" element={<BrowseWorkouts />} />
-      <Route path="/generated" element={<GenerateWorkout />} />
-    </Routes>
+    <>
+      <Header color={color} headingRef={headingRef} />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <>
+              <ChoiceButtons color={color} />
+            </>
+          }
+        />
+        <Route path="/browse" element={<BrowseWorkoutHistory />} />
+        <Route path="/generated" element={<GenerateWorkout />} />
+      </Routes>
+    </>
   );
 }
 

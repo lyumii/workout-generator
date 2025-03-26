@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 interface HeaderProps {
   color: string;
   headingRef: React.RefObject<HTMLHeadingElement | null>;
@@ -22,6 +24,9 @@ export default function Header({ color, headingRef }: HeaderProps) {
           <p className="greet">What would you like to do today?</p>
         </div>
       }
+      <Link to="/">
+        <span style={{ color }}>Home</span>
+      </Link>
     </>
   );
 }

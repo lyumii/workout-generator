@@ -16,3 +16,18 @@ class Workout(db.Model):
     source = db.Column(db.String(20), default="AI")
     notes = db.Column(db.Text, nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+class WorkoutHistory(db.Model):
+    __tablename__ = "savedworkouts"
+    id = db.Column(db.Integer, primary_key=True)
+    prompt = db.Column(db.String, nullable=False)
+    workout_data = db.Column(db.JSON, nullable=False) 
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "prompt": self.prompt,
+            "workouts": self.workout_data,
+            "timestamp": self.timestamp.isoformat()
+        }

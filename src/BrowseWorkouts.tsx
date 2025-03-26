@@ -143,6 +143,7 @@ export default function BrowseWorkouts() {
                 name={workout.name}
                 sets={workout.sets}
                 reps={workout.reps ?? "N/A"}
+                className={"carddiv"}
               />
             ))
           );

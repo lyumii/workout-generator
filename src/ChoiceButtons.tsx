@@ -23,7 +23,12 @@ export default function ChoiceButtons({ color }: ButtonProps) {
         throw new Error(`failed to send prompt`);
       }
       const data = await res.json();
-      navigate("/generated", { state: { workouts: data } });
+      navigate("/generated", {
+        state: {
+          workouts: data,
+          prompt: prompt,
+        },
+      });
     } catch (error) {
       console.log(`smth went wrong`, error);
     }

@@ -47,6 +47,12 @@ filters = {
     }
 
 def prompt_filters(prompt):
+    filters = {
+        "muscles": [],
+        "diff": None,
+        "equip": None,
+        "count": 10
+    }
     prompt = prompt.lower()
     matched_muscles = set()
     for group in workout_type.values(): 

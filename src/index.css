@@ -74,7 +74,8 @@ h1 {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), 0 8px 30px rgba(0, 0, 0, 0.2);
 }
 
-.notgeneratedcontainer button {
+.notgeneratedcontainer button,
+.generatedworkoutbuttons button {
   border: none;
   color: azure;
   font-size: 1.1em;
@@ -125,6 +126,17 @@ button {
   border: azure 0.1em solid;
 }
 
+.buttonsdiv {
+  display: flex;
+  width: 40%;
+  gap: 5px;
+}
+
+.generatedworkoutbuttons {
+  padding: 3px;
+  text-align: center;
+}
+
 .notavailablep {
   text-align: center;
   width: 40%;
@@ -138,11 +150,33 @@ button {
   margin: 1vh;
   margin-left: 0;
   border-radius: 5px;
-  color: azure;
+  color: #eae8e8;
   padding: 0.5vh;
   border: 3px solid;
   border-image: linear-gradient(45deg, #f5a623, #06d6a0, #8c9eff, #ff6b6b) 1;
   animation: borderAnimation 3s infinite linear;
+}
+
+.promptdiv {
+  text-align: center;
+  box-shadow: -4px -4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.generatedworkout {
+  color: #e2e1e1;
+  width: 40%;
+  margin-top: 1em;
+  background-color: #5a5a5a1e;
+  box-shadow: -4px -4px 10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 5px;
+}
+
+.setrepcontainer {
+  display: flex;
+  gap: 5px;
 }
 
 @keyframes borderAnimation {

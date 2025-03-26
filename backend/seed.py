@@ -185,9 +185,20 @@ workout = [
     w("Donkey Kick", "Legs", "easy", "glutes, gluteus maximus", "bodyweight"),
     w("Clamshell", "Legs", "easy", "glutes, gluteus medius", "bodyweight"),
     w("Side-Lying Hip Abduction", "Legs", "easy", "glutes, gluteus medius", "bodyweight"),
+    w("Hip Thrust", "Legs", "medium", "glutes, hamstrings, hams", "barbell"),
+    w("Dumbbell Hip Thrust", "Legs", "medium", "glutes, hamstrings, hams", "dumbbell"),
+    w("Frog Pump", "Legs", "easy", "glutes, hamstrings, hams", "bodyweight"),
+
 
     #legs 
-
+    w("Dumbbell Step-Up", "Legs", "medium", "quadriceps, quads", "dumbbell"),
+    w("Dumbbell Lunge", "Legs", "medium", "quadriceps, quads", "dumbbell"),
+    w("Sissy Squat", "Legs", "hard", "quadriceps, quads", "bodyweight"),
+    w("Smith Machine Squat", "Legs", "medium", "quadriceps, quads", "smith machine"),
+    w("Cable Squat", "Legs", "medium", "quadriceps, quads", "cable"),
+    w("Split Squat", "Legs", "medium", "quadriceps, quads", "bodyweight"),
+    w("Wall Sit", "Legs", "easy", "quadriceps, quads", "bodyweight"),
+    w("Cyclist Squat", "Legs", "medium", "quadriceps, quads", "barbell"),
     w("Barbell Squat", "Legs", "medium", "quadriceps, quads", "barbell"),
     w("Front Squat", "Legs", "medium", "quadriceps, quads", "barbell"),
     w("Leg Press", "Legs", "medium", "quadriceps, quads", "machine"),
@@ -207,6 +218,15 @@ workout = [
     w("Sumo Deadlift", "Legs", "medium", "quadriceps, quads, hamstrings, hams", "barbell"),
     w("Trap Bar Deadlift", "Legs", "medium", "quadriceps, quads, hamstrings, hams", "trap bar"),
     w("Hack Squat", "Legs", "medium", "quadriceps, quads, hamstrings, hams", "machine"),
+    w("Seated Leg Curl", "Legs", "easy", "hamstrings, hams", "machine"),
+    w("Standing Leg Curl", "Legs", "easy", "hamstrings, hams", "machine"),
+    w("Cable Pull-Through", "Legs", "medium", "hamstrings, hams, glutes", "cable"),
+    w("Glute Kickback", "Legs", "easy", "hamstrings, hams, glutes", "cable"),
+    w("Dumbbell Romanian Deadlift", "Legs", "medium", "hamstrings, hams", "dumbbell"),
+    w("Dumbbell Good Morning", "Legs", "medium", "hamstrings, hams", "dumbbell"),
+    w("Single-Leg Glute Bridge", "Legs", "medium", "hamstrings, hams, glutes", "bodyweight"),
+    w("Hamstring Walkout", "Legs", "medium", "hamstrings, hams", "bodyweight"),
+
 ]
 
 with app.app_context():
