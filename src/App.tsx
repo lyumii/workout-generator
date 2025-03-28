@@ -24,7 +24,7 @@ function App() {
   }, []);
 
   return (
-    <>
+    <main className="main">
       <Header color={color} headingRef={headingRef} />
       <Routes>
         <Route
@@ -38,7 +38,7 @@ function App() {
         <Route path="/browse" element={<BrowseWorkoutHistory />} />
         <Route path="/generated" element={<GenerateWorkout />} />
       </Routes>
-    </>
+    </main>
   );
 }
 

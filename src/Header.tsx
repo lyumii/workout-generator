@@ -18,14 +18,16 @@ export default function Header({ color, headingRef }: HeaderProps) {
 
       {
         <div className="notgeneratedcontainer">
-          <h1 ref={headingRef} style={{ color }}>
+          <h1 ref={headingRef} style={{ color, textDecoration: `none` }}>
             Time for gains!
           </h1>
           <p className="greet">What would you like to do today?</p>
         </div>
       }
       <Link to="/">
-        <span style={{ color }}>Home</span>
+        <span className="home" style={{ color }}>
+          Home
+        </span>
       </Link>
     </>
   );

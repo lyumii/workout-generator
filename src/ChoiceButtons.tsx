@@ -46,7 +46,7 @@ export default function ChoiceButtons({ color }: ButtonProps) {
         <button type="submit" style={{ backgroundColor: color }}>
           Ask for a workout
         </button>
-        <p> - or - </p>
+        <p className="orparagraph"> • or • </p>
         <button
           onClick={(e) => {
             e.preventDefault();

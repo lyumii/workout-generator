@@ -3,13 +3,11 @@ from models import db, Workout
 
 
 
-def w(name, type, diff, muscles, equipment, reps="10", sets=3):
+def w(name, type, diff, muscles, equipment):
     return Workout(
         name=name,
         type=type,
         difficulty=diff,
-        reps=reps,
-        sets=sets,
         targeted_muscles=muscles,
         equipment=equipment
     )
@@ -20,13 +18,13 @@ workout = [
 
     w("Barbell Front Raise", "Upper", "medium", "front, deltoids, anterior, shoulders", "barbell" ),
     w("Barbell Military Press", "Upper", "medium", "front, anterior, deltoid, shoulders", "barbell"),
-    w("One Arm Cable Front Raise", "Upper", "easy", "front, deltoids, anterior, shoulders", "cable", "10 per side"),
+    w("One Arm Cable Front Raise", "Upper", "easy", "front, deltoids, anterior, shoulders", "cable"),
     w("Seated Cable Shoulder Press", "Upper", "medium", "front, anterior, deltoid, shoulders", "cable"),
     w("Dumbbell Arnold Press", "Upper", "easy", "front, deltoids, anterior, shoulders", "dumbbell"),
     w("Dumbbell Front Raise", "Upper", "easy", "front, anterior, deltoid, shoulders", "dumbbell"),
     w("Dumbbell Shoulder Press", "Upper", "medium", "front, anterior, deltoid, shoulders", "dumbbell"),
     w("Barbell Upright Row", "Upper", "medium", "deltoid, lateral, shoulders, side, lat", "barbell"),
-    w("One Arm Cable Lateral Raise", "Upper", "easy", "deltoid, lateral, shoulders, side, lat", "cable", "10 per side"),
+    w("One Arm Cable Lateral Raise", "Upper", "easy", "deltoid, lateral, shoulders, side, lat", "cable"),
     w("Cable Upright Row", "Upper", "medium", "deltoid, lateral, shoulders, side, lat", "cable"),
     w("Cable Y Row", "Upper", "medium", "deltoid, lateral, shoulders, side, lat", "cable"),
     w("Dumbbell Incline Lateral Raise", "Upper", "hard", "deltoid, lateral, shoulders, side, lat", "dumbbell"),

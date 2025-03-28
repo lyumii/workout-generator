@@ -3,6 +3,7 @@ from collections import Counter
 from models import db, Workout
 from sqlalchemy import or_
 from sqlalchemy.sql.expression import func
+from helperfunctions import word_to_number, number_to_muscle_group_pattern, sets_and_reps, get_filters
 
 workout_type = {
         "Upper": {
@@ -39,31 +40,35 @@ equipment = {
         "cable": ["cable", "cables"]
     }
 
-filters = {
-        "muscles": [],
-        "diff": None,
-        "equip": None,
-        "count": 10
-    }
+
+filters = get_filters()
+
+
 
 def prompt_filters(prompt):
     filters = {
         "muscles": [],
         "diff": None,
         "equip": None,
-        "count": 10
+        "count": 10,
+        "sets": 3,
+        "reps": 10
     }
-    prompt = prompt.lower()
-    matched_muscles = set()
+    prompt = word_to_number(prompt)
+
+    prompt = sets_and_reps(prompt, filters)
+
+    # matched_muscles = set()
+
     for group in workout_type.values(): 
         for muscle, keywords in group.items():
             if any(word in prompt for word in keywords):
                 filters["muscles"].append(muscle)
 
-    if matched_muscles:
-        filters["muscles"] = list(dict.fromkeys(filters["muscles"]))
+    # if matched_muscles:
+    #     filters["muscles"] = list(dict.fromkeys(filters["muscles"]))
 
-    if any(phrase in prompt for phrase in ["upper", "upper body"]):
+    if any(phrase in prompt for phrase in ["upper", "upper body", "upperbody"]):
         for subgroups in workout_type.values():
             filters["muscles"].extend(workout_type["Upper"].keys())
     if any(phrase in prompt for phrase in ["push"]):
@@ -133,8 +138,16 @@ def get_filtered_workout(filters, prompt):
 
     if filters["equip"]:
         query = query.filter(Workout.equipment.ilike(f"%{filters['equip']}%"))
+
     query = query.order_by(func.random()) 
     all_results = query.all()
+
+    for w in all_results:
+        if filters.get("sets"):
+            w.sets = filters["sets"]
+        if filters.get("reps"):
+            w.reps = filters["reps"]
+
     
 
     def ratio_filters(data, muscles, count, prompt):
@@ -207,29 +220,33 @@ def get_filtered_workout(filters, prompt):
             return cleaned
         
         cleaned_prompt = clean_prompt_for_priority(prompt, excluded_muscles)       
-        focus_keywords = ["focus", "emphasize", "prioritize", "mostly", "mainly", "grow", "build", "tone"]
+        focus_keywords = ["focus", "emphasize", "prioritize", "mostly", "mainly", "grow", "build", "tone", "lots of", "lots", "lotta", "lot of", "alot of", "a lot of"]
 
         match muscle_group:
             case "fullbody":
                 if any(word in cleaned_prompt for word in focus_keywords) and "back" in cleaned_prompt and "chest" in cleaned_prompt:
                     priority = ["back", "chest", "back", "chest", "glutes", "quads", "anterior", "abs", "hams", "biceps", "triceps", "obliques"]
-                elif any(word in cleaned_prompt for word in focus_keywords) and "legs" in cleaned_prompt and "core" in cleaned_prompt:
+                elif any(word in cleaned_prompt for word in focus_keywords) and "upper" in cleaned_prompt or "upperbody" in cleaned_prompt:
+                    priority = ["back", "chest", "back", "chest",  "anterior", "glutes", "quads", "abs", "hams", "biceps", "triceps", "obliques"]
+                elif any(word in cleaned_prompt for word in focus_keywords) and "leg" in cleaned_prompt and "core" in cleaned_prompt:
                     priority = ["glutes", "quads", "hams", "glutes", "abs", "obliques", "lower_back", "back", "chest", "biceps", "triceps"]
-                elif any(word in cleaned_prompt for word in focus_keywords) and "arms" in cleaned_prompt and "core" in cleaned_prompt:
+                elif any(word in cleaned_prompt for word in focus_keywords) and "arm" in cleaned_prompt and "core" in cleaned_prompt:
                     priority = ["biceps", "triceps", "abs", "obliques", "lower_back", "back", "chest", "quads", "glutes"]
-                elif any(word in cleaned_prompt for word in focus_keywords) and "glutes" in cleaned_prompt and "abs" in cleaned_prompt:
+                elif any(word in cleaned_prompt for word in focus_keywords) and "glute" in cleaned_prompt and "abs" in cleaned_prompt:
                     priority = ["glutes", "glutes", "abs", "abs", "quads", "hams", "back", "chest", "biceps", "triceps", "obliques"]
-                elif any(word in cleaned_prompt for word in focus_keywords) and "chest" in cleaned_prompt and "arms" in cleaned_prompt:
+                elif any(word in cleaned_prompt for word in focus_keywords) and "chest" in cleaned_prompt and "arm" in cleaned_prompt:
                     priority = ["chest", "triceps", "chest", "biceps", "back", "glutes", "quads", "abs"]
-                elif any(word in cleaned_prompt for word in focus_keywords) and "shoulders" in cleaned_prompt and "arms" in cleaned_prompt:
-                    priority = ["anterior", "lateral", "posterior", "biceps", "triceps", "chest", "back", "abs"]
-                elif any(word in cleaned_prompt for word in focus_keywords) and "legs" in cleaned_prompt:
+                elif any(word in cleaned_prompt for word in focus_keywords) and "shoulder" in cleaned_prompt and "arm" in cleaned_prompt:
+                    priority = ["anterior", "lateral", "posterior", "biceps", "triceps", "chest", "back", "glutes", "quads", "abs", "hams"]
+                elif any(word in cleaned_prompt for word in focus_keywords) and "shoulder" in cleaned_prompt:
+                    priority = ["anterior", "lateral", "posterior", "chest", "back", "glutes", "quads", "abs", "hams", "biceps", "triceps"]
+                elif any(word in cleaned_prompt for word in focus_keywords) and "leg" in cleaned_prompt:
                     priority = ["glutes", "quads", "hams", "glutes", "chest", "back", "abs", "anterior"]
                 elif any(word in cleaned_prompt for word in focus_keywords) and "core" in cleaned_prompt:
                     priority = ["abs", "obliques", "lower_back", "abs", "chest", "glutes", "back", "quads"]
-                elif any(word in cleaned_prompt for word in focus_keywords) and "arms" in cleaned_prompt:
-                    priority = ["biceps", "triceps", "biceps", "triceps", "chest", "back", "abs"]
-                elif any(word in cleaned_prompt for word in focus_keywords) and "glutes" in cleaned_prompt:
+                elif any(word in cleaned_prompt for word in focus_keywords) and "arm" in cleaned_prompt:
+                    priority = ["biceps", "triceps", "biceps", "triceps", "chest", "back", "glutes", "quads", "anterior", "abs"]
+                elif any(word in cleaned_prompt for word in focus_keywords) and "glute" in cleaned_prompt:
                     priority = ["glutes", "glutes", "quads", "hams", "abs", "back", "chest"]
                 else:
                     priority = ["back", "chest", "anterior", "glutes", "quads", "abs", "hams", "biceps", "triceps", "obliques"]
@@ -387,7 +404,28 @@ def get_filtered_workout(filters, prompt):
         print(priority)
            
 
-        distribution = get_muscle_distribution(muscles, count, priority)
+        matched, result = number_to_muscle_group_pattern(prompt)
+
+        if matched:
+            
+            if result["type"] == "each":
+                distribution = {muscle: result["count_per_muscle"] for muscle in muscles}
+                count = sum(distribution.values())
+            elif result["type"] == "specific":
+                print("Matched distribution before fill:", result["distribution"])
+                distribution = result["distribution"]
+                
+
+                reminder = count - sum(distribution.values())
+                if reminder > 0:
+                        remaining_muscles = [m for m in muscles if m not in result["distribution"]]
+                        if remaining_muscles:
+                            for i in range(reminder):
+                                muscle = remaining_muscles[i % len(remaining_muscles)]
+                                distribution[muscle] = distribution.get(muscle, 0) + 1
+        else:
+            distribution = get_muscle_distribution(muscles, count, priority)
+        print("Final distribution:", distribution)
         for muscle, num in distribution.items():
             print(f"  - {muscle}: {num} workout(s)")
 

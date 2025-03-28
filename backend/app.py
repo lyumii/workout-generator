@@ -20,7 +20,7 @@ def generate_workout():
     if request.method == "GET":
         return jsonify({"message": "This route accepts POST requests with a prompt."})
 
-    from filters import prompt_filters, get_filtered_workout
+    from filters_engine import prompt_filters, get_filtered_workout
     
     print("CONTENT-TYPE:", request.content_type)
     print("RAW BODY:", request.data)

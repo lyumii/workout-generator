@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import WorkoutHistoryItem, { WorkoutHistoryEntry } from "./WorkoutHistoryItem";
+import colors from "./colors";
 
 export default function BrowseWorkoutHistory() {
   const [history, setHistory] = useState<WorkoutHistoryEntry[]>([]);
@@ -10,10 +11,14 @@ export default function BrowseWorkoutHistory() {
       .then((data) => setHistory(data));
   }, []);
   return (
-    <div>
+    <div className="generatedworkoutswidth">
       <div>
-        {history.map((entry: WorkoutHistoryEntry) => (
-          <WorkoutHistoryItem key={entry.id} entry={entry} />
+        {history.map((entry: WorkoutHistoryEntry, index) => (
+          <WorkoutHistoryItem
+            key={entry.id}
+            entry={entry}
+            color={colors[index % colors.length]}
+          />
         ))}
       </div>
     </div>

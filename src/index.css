@@ -5,13 +5,18 @@
 }
 
 body {
-  width: 90%;
   margin: auto;
   background-color: #333;
+  display: flex;
+  justify-content: center;
+}
+
+.main {
+  width: 100vh;
 }
 
 .workoutimgcontainer {
-  width: 40%;
+  /* width: 40%; */
   height: 20vh;
   padding-top: 3vh;
 }
@@ -65,9 +70,9 @@ h1 {
   gap: 1em;
 }
 
-.notgeneratedcontainer form {
+/* .notgeneratedcontainer form {
   width: 40%;
-}
+} */
 
 .notgeneratedcontainer button:hover {
   animation: scale 2s ease-in-out 0s infinite alternate;
@@ -100,7 +105,7 @@ h1 {
 
 .buttons-categories,
 .buttons-difficulty {
-  width: 40%;
+  /* width: 40%; */
   display: flex;
   justify-content: space-between;
   margin-top: 1vh;
@@ -126,15 +131,19 @@ button {
   border: azure 0.1em solid;
 }
 
+/* .generatedworkoutswidth {
+  width: 40%;
+} */
+
 .buttonsdiv {
   display: flex;
-  width: 40%;
   gap: 5px;
 }
 
 .generatedworkoutbuttons {
   padding: 3px;
   text-align: center;
+  color: 333;
 }
 
 .notavailablep {
@@ -145,8 +154,7 @@ button {
 }
 
 .carddiv {
-  background-color: #5a5a5a;
-  width: 40%;
+  background-color: #5a5a5a5e;
   margin: 1vh;
   margin-left: 0;
   border-radius: 5px;
@@ -160,11 +168,21 @@ button {
 .promptdiv {
   text-align: center;
   box-shadow: -4px -4px 10px rgba(0, 0, 0, 0.5);
+  font-family: "Wallpoet", serif;
+  font-weight: 600;
+  padding: 5px;
+}
+
+.orparagraph {
+  font-family: "Cutive Mono", monospace;
+  color: #e2e1e1;
+  text-align: center;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .generatedworkout {
   color: #e2e1e1;
-  width: 40%;
   margin-top: 1em;
   background-color: #5a5a5a1e;
   box-shadow: -4px -4px 10px rgba(0, 0, 0, 0.5);
@@ -172,11 +190,43 @@ button {
   flex-direction: column;
   gap: 3px;
   padding: 5px;
+  font-family: "Cutive Mono", monospace;
+  letter-spacing: -0.5px;
+}
+
+.generatedworkout h3 {
+  font-size: 0.8em;
+  font-weight: 200;
 }
 
 .setrepcontainer {
   display: flex;
+  gap: 35px;
+}
+
+.historyitemdiv {
+  font-family: "Cutive Mono", monospace;
+  letter-spacing: -0.5px;
+  font-size: 0.85em;
+  display: flex;
+  flex-direction: column;
   gap: 5px;
+}
+
+.historyitemdiv span {
+  font-size: 0.9em;
+  letter-spacing: -0.5px;
+}
+
+.historyitemdiv .spantitle {
+  font-weight: 900;
+  letter-spacing: -1px;
+}
+
+.title {
+  font-size: 1em;
+  font-weight: 700;
+  margin: 5px;
 }
 
 @keyframes borderAnimation {

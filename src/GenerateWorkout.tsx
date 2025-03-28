@@ -26,7 +26,7 @@ export default function GenerateWorkout() {
   };
 
   return (
-    <div>
+    <div className="generatedworkoutswidth">
       <h2 className="carddiv promptdiv">•• {prompt} ••</h2>
       <div className="exdiv">
         {workouts.map((workout: WorkoutCardProps, index) => (
@@ -42,6 +42,7 @@ export default function GenerateWorkout() {
               borderLeft: `2px solid ${colors[index % colors.length]}`,
               borderBottom: `2px solid ${colors[index % colors.length]}`,
             }}
+            stylecolor={`${colors[index % colors.length]}`}
           />
         ))}
       </div>
