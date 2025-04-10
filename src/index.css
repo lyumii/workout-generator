@@ -103,6 +103,12 @@ h1 {
   }
 }
 
+.editbtnsdiv {
+  display: flex;
+  justify-content: space-between;
+  align-items: last baseline;
+}
+
 .buttons-categories,
 .buttons-difficulty {
   /* width: 40%; */

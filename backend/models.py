@@ -1,4 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.mutable import MutableList
+from sqlalchemy.dialects.sqlite import JSON
 from datetime import datetime
 
 db = SQLAlchemy()
@@ -21,7 +23,7 @@ class WorkoutHistory(db.Model):
     __tablename__ = "savedworkouts"
     id = db.Column(db.Integer, primary_key=True)
     prompt = db.Column(db.String, nullable=False)
-    workout_data = db.Column(db.JSON, nullable=False) 
+    workout_data = db.Column(MutableList.as_mutable(JSON), nullable=False) 
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):

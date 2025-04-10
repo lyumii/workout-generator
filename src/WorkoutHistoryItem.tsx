@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import WorkoutCard from "./WorkoutCard";
 import colors from "./colors";
+import { useNavigate } from "react-router-dom";
+import { WorkoutCardContext } from "./WorkoutCardContext";
+import { useEditContext } from "./EditContext";
 
 export interface Exercise {
   name: string;
@@ -20,14 +23,24 @@ export interface WorkoutHistoryEntry {
 export interface WorkoutHistoryItemProps {
   entry: WorkoutHistoryEntry;
   color?: string;
+  onDelete: () => void;
+  onEdit: (id: number) => void;
 }
 
 export default function WorkoutHistoryItem({
   entry,
   color,
+  onDelete,
+  onEdit,
 }: WorkoutHistoryItemProps) {
   const [expand, setExpand] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const { editedExercises } = useEditContext();
+
   const containerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  const randomKey = () => Math.random().toString(36).substr(2, 9);
 
   const handleClickOutside = (e: MouseEvent) => {
     if (
@@ -36,6 +49,9 @@ export default function WorkoutHistoryItem({
     ) {
       setExpand(false);
     }
+  };
+  const toggleEdit = () => {
+    setIsEditing((prev) => !prev);
   };
 
   useEffect(() => {
@@ -86,36 +102,68 @@ export default function WorkoutHistoryItem({
         {expand && (
           <div>
             {entry.workouts.map((exercise, index) => (
-              <WorkoutCard
-                key={index}
-                name={exercise.name}
-                sets={exercise.sets}
-                reps={exercise.reps}
-                targeted_muscles={exercise.targeted_muscles}
-                equipment={exercise.equipment}
-                style={{
-                  borderLeft: `2px solid ${colors[index % colors.length]}`,
-                  borderBottom: `2px solid ${colors[index % colors.length]}`,
-                }}
-                stylecolor={`${colors[index % colors.length]}`}
-              />
+              <WorkoutCardContext.Provider
+                key={randomKey()}
+                value={{ historyId: entry.id, exerciseIndex: index }}
+              >
+                <WorkoutCard
+                  key={index}
+                  name={exercise.name}
+                  sets={exercise.sets}
+                  reps={exercise.reps}
+                  targeted_muscles={exercise.targeted_muscles}
+                  equipment={exercise.equipment}
+                  edit={isEditing}
+                  style={{
+                    borderLeft: `2px solid ${colors[index % colors.length]}`,
+                    borderBottom: `2px solid ${colors[index % colors.length]}`,
+                  }}
+                  stylecolor={`${colors[index % colors.length]}`}
+                />
+              </WorkoutCardContext.Provider>
             ))}
             <div className="buttonsdiv">
               <button
                 className="buttons-categories generatedworkoutbuttons"
                 style={{ backgroundColor: "#FFD166" }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (isEditing) {
+                    e.stopPropagation();
+                    console.log("ALL EDITED:", editedExercises);
+                    console.log("Submitting ID:", entry.id);
+                    console.log("Edited for ID:", editedExercises[entry.id]);
+                    onEdit(entry.id);
+                    toggleEdit();
+                  } else {
+                    navigate("/current", {
+                      state: {
+                        prompt: entry.prompt,
+                        workouts: entry.workouts,
+                      },
+                    });
+                  }
+                }}
               >
-                Do again
+                {isEditing ? "Submit Edit" : "Do Again"}
               </button>
               <button
                 className="buttons-categories generatedworkoutbuttons"
                 style={{ backgroundColor: "#C3E88D" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleEdit();
+                }}
               >
-                Edit
+                {isEditing ? "Cancel Edit" : "Edit"}
               </button>
               <button
                 className="buttons-categories generatedworkoutbuttons"
                 style={{ backgroundColor: "#4ECDC4" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
               >
                 Discard
               </button>

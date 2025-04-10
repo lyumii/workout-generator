@@ -3,6 +3,8 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from models import db, Workout, WorkoutHistory
+from sqlalchemy.orm.attributes import flag_modified
+
 
 app = Flask(__name__)
 CORS(app)
@@ -45,6 +47,48 @@ def generate_workout():
         for w in workouts
     ])
 
+@app.route("/browse/<int:id>", methods=["PUT"])
+def edit_workout(id):
+    workout = WorkoutHistory.query.get_or_404(id)
+    data = request.get_json()
+
+    index = data.get("index")
+    new_sets = data.get("sets")
+    new_reps = data.get("reps")
+
+    try:
+        if new_sets is not None:
+            workout.workout_data[index]["sets"] = new_sets
+        if new_reps is not None:
+            workout.workout_data[index]["reps"] = new_reps
+
+        print(f"Updating workout {id}, index {index}, sets: {new_sets}, reps: {new_reps}")
+        flag_modified(workout, "workout_data")
+
+        db.session.commit()
+        return jsonify({"message": "Updated!!", "workout": workout.to_dict()}), 201
+    
+    except (IndexError, TypeError):
+        return jsonify({"error": "Invalid index or workout structure"}), 400
+    
+
+@app.route("/browse/<int:id>", methods=["DELETE"])
+def delete_exercise(id):
+    workout = WorkoutHistory.query.get_or_404(id)
+    data = request.get_json()
+    index = data.get("index")
+
+    try: 
+        del workout.workout_data[index]
+        db.session.commit()
+        return jsonify({"message": "Removed!", "workout": workout.to_dict()}), 201
+    
+    except (IndexError, TypeError):
+        return jsonify({"error": "Invalid index"}), 400
+    
+
+
+
 
 @app.route("/workouthistory", methods=["POST"])
 def add_workout():
@@ -65,6 +109,17 @@ def add_workout():
 def get_history():
     history = WorkoutHistory.query.order_by(WorkoutHistory.timestamp.desc()).all()
     return jsonify([entry.to_dict() for entry in history])
+
+@app.route("/workouthistory/<int:id>", methods=["DELETE"])
+def delete_workout_from_history(id):
+    workout = WorkoutHistory.query.get_or_404(id)
+    db.session.commit()
+
+    try:
+        db.session.delete(workout)
+        return jsonify({"message": "deleted from workout history"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Failed to delete workout: {str(e)}"}), 400
 
 
 if __name__ == "__main__":

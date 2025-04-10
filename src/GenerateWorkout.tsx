@@ -1,11 +1,17 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState, memo } from "react";
 import WorkoutCard, { WorkoutCardProps } from "./WorkoutCard";
 import colors from "./colors";
+import { toast } from "react-hot-toast";
 
-export default function GenerateWorkout() {
+function GenerateWorkout() {
+  console.log("🔄 GenerateWorkout rendered");
+
   const location = useLocation();
-  const workouts: WorkoutCardProps[] = location.state?.workouts || [];
-  const prompt: string = location.state?.prompt;
+  const navigate = useNavigate();
+
+  const [workouts, setWorkouts] = useState<WorkoutCardProps[]>([]);
+  const [prompt, setPrompt] = useState("");
 
   const saveWorkout = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -19,11 +25,33 @@ export default function GenerateWorkout() {
       if (!res.ok) {
         throw new Error(`failed to save prompt`);
       }
+      toast.success("✨ Workout added!", {
+        icon: "💪",
+        style: {
+          background: "#333",
+          color: "#fff",
+          border: "1px solid #F5A623",
+        },
+      });
       console.log(`workout saved, yay`);
     } catch (error) {
       console.log(`smth went wrong`, error);
     }
   };
+
+  const cardStyles = workouts.map((_, index) => ({
+    borderLeft: `2px solid ${colors[index % colors.length]}`,
+    borderBottom: `2px solid ${colors[index % colors.length]}`,
+  }));
+
+  const styleColors = workouts.map((_, index) => colors[index % colors.length]);
+
+  useEffect(() => {
+    if (location.state) {
+      setWorkouts(location.state.workouts || []);
+      setPrompt(location.state.prompt || "");
+    }
+  }, []);
 
   return (
     <div className="generatedworkoutswidth">
@@ -38,11 +66,8 @@ export default function GenerateWorkout() {
             sets={workout.sets}
             reps={workout.reps}
             className={"generatedworkout"}
-            style={{
-              borderLeft: `2px solid ${colors[index % colors.length]}`,
-              borderBottom: `2px solid ${colors[index % colors.length]}`,
-            }}
-            stylecolor={`${colors[index % colors.length]}`}
+            style={cardStyles[index]}
+            stylecolor={styleColors[index]}
           />
         ))}
       </div>
@@ -50,6 +75,15 @@ export default function GenerateWorkout() {
         <button
           className="buttons-categories generatedworkoutbuttons"
           style={{ backgroundColor: "#8C9EFF" }}
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/current", {
+              state: {
+                prompt,
+                workouts,
+              },
+            });
+          }}
         >
           Let's do it!
         </button>
@@ -70,3 +104,5 @@ export default function GenerateWorkout() {
     </div>
   );
 }
+
+export default memo(GenerateWorkout);

@@ -1,13 +1,11 @@
 import { useState } from "react";
+import { usePulseColor } from "./ColorContext";
 import { useNavigate } from "react-router-dom";
 
-interface ButtonProps {
-  color: string;
-}
-
-export default function ChoiceButtons({ color }: ButtonProps) {
+export default function ChoiceButtons() {
   const navigate = useNavigate();
   const [prompt, setPrompt] = useState("");
+  const color = usePulseColor();
 
   const sendGenerateRequest = async (
     event: React.FormEvent<HTMLFormElement>

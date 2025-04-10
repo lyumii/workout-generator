@@ -1,43 +1,57 @@
 import BrowseWorkoutHistory from "./BrowseWorkoutHistory";
 import ChoiceButtons from "./ChoiceButtons";
+import CurrentWorkout from "./CurrentWorkout";
 import GenerateWorkout from "./GenerateWorkout";
 import Header from "./Header";
-import colors from "./colors";
-import { useState, useEffect, useRef } from "react";
+import { useMemo, useState } from "react";
 import { Route, Routes } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import { EditContext } from "./EditContext";
 
 function App() {
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const [color, setColor] = useState(colors[0]);
-
-  useEffect(() => {
-    const changeColor = () => {
-      setColor(colors[Math.floor(Math.random() * colors.length)]);
+  const [editedExercises, setEditedExercises] = useState<{
+    [historyId: number]: {
+      [exerciseIndex: number]: { sets: number; reps: number };
     };
-
-    const heading = headingRef.current;
-    if (heading) {
-      heading.addEventListener("animationiteration", changeColor);
-      return () =>
-        heading.removeEventListener("animationiteration", changeColor);
-    }
-  }, []);
-
+  }>({});
   return (
     <main className="main">
-      <Header color={color} headingRef={headingRef} />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <ChoiceButtons color={color} />
-            </>
-          }
-        />
-        <Route path="/browse" element={<BrowseWorkoutHistory />} />
-        <Route path="/generated" element={<GenerateWorkout />} />
-      </Routes>
+      <Header>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <ChoiceButtons />
+              </>
+            }
+          />
+
+          <Route
+            path="/browse"
+            element={
+              <EditContext.Provider
+                value={{ editedExercises, setEditedExercises }}
+              >
+                <BrowseWorkoutHistory />
+              </EditContext.Provider>
+            }
+          />
+
+          <Route
+            path="/generated"
+            element={useMemo(
+              () => (
+                <GenerateWorkout />
+              ),
+              []
+            )}
+          />
+
+          <Route path="/current" element={<CurrentWorkout />} />
+        </Routes>
+        <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+      </Header>
     </main>
   );
 }
