@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from models import db, Workout, WorkoutHistory
@@ -7,7 +7,7 @@ from sqlalchemy.orm.attributes import flag_modified
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///workouts.db"
 db.init_app(app)
@@ -72,22 +72,37 @@ def edit_workout(id):
         return jsonify({"error": "Invalid index or workout structure"}), 400
     
 
-@app.route("/browse/<int:id>", methods=["DELETE"])
-def delete_exercise(id):
+@app.route("/browse/<int:id>/exercise/<int:index>", methods=["DELETE", "OPTIONS"])
+def delete_exercise(id, index):
+    if request.method == "OPTIONS":
+        print("🌐 Responding to preflight OPTIONS request")
+        return '', 204 
     workout = WorkoutHistory.query.get_or_404(id)
-    data = request.get_json()
-    index = data.get("index")
+
+    print(f"🔍 Received DELETE for workout ID: {id}, index: {index}")
+    print(f"📦 Current workout data: {workout.workout_data}")
 
     try: 
         del workout.workout_data[index]
+        flag_modified(workout, "workout_data") 
         db.session.commit()
         return jsonify({"message": "Removed!", "workout": workout.to_dict()}), 201
     
-    except (IndexError, TypeError):
-        return jsonify({"error": "Invalid index"}), 400
+    except (IndexError, TypeError) as e:
+        if not isinstance(workout.workout_data, list) or index >= len(workout.workout_data):
+            print(f"❌ Invalid index: {index}, list size: {len(workout.workout_data)}")
+            return jsonify({"error": "Invalid index"}), 400
     
 
+@app.route("/exercises/search")
+def search_exercises():
+    query = request.args.get("query", "").lower()
 
+    if not query:
+        return jsonify([])
+    
+    matches = Workout.query.filter(Workout.name.ilike(f"%{query}%")).limit(10).all()
+    return jsonify([e.to_dict() for e in matches])
 
 
 @app.route("/workouthistory", methods=["POST"])

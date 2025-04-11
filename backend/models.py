@@ -19,6 +19,17 @@ class Workout(db.Model):
     notes = db.Column(db.Text, nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "type": self.type,
+            "targeted_muscles": self.targeted_muscles,
+            "equipment": self.equipment,
+            "sets": self.sets,
+            "reps": self.reps
+        }
+
 class WorkoutHistory(db.Model):
     __tablename__ = "savedworkouts"
     id = db.Column(db.Integer, primary_key=True)

@@ -15,7 +15,8 @@ export interface WorkoutCardProps {
   stylecolor?: string;
   complete?: boolean;
   edit?: boolean;
-  deleteExercise?: (id: number) => void;
+  deleteExercise?: (index: number) => void;
+  exerciseIndex?: number;
 }
 
 export default function WorkoutCard(props: WorkoutCardProps) {
@@ -24,13 +25,6 @@ export default function WorkoutCard(props: WorkoutCardProps) {
 
   const [sets, setSets] = useState(props.sets);
   const [reps, setReps] = useState(props.reps);
-
-  console.log(
-    "WorkoutCard → historyId:",
-    historyId,
-    "exerciseIndex:",
-    exerciseIndex
-  );
 
   const handleChange = (field: "sets" | "reps", value: number) => {
     setEditedExercises((prev) => ({
@@ -124,9 +118,13 @@ export default function WorkoutCard(props: WorkoutCardProps) {
           <button
             className="buttons-categories generatedworkoutbuttons"
             style={{ backgroundColor: props.stylecolor }}
-            onClick={() =>
-              props.id !== undefined && props.deleteExercise?.(props.id!)
-            }
+            onClick={(e) => {
+              e.stopPropagation();
+              if (props.deleteExercise && props.exerciseIndex !== undefined) {
+                console.log(props.exerciseIndex);
+                props.deleteExercise(props.exerciseIndex);
+              }
+            }}
           >
             Delete Exercise
           </button>

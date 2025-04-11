@@ -33,6 +33,30 @@ export default function BrowseWorkoutHistory() {
     }
   };
 
+  const handleDelete = async (workoutId: number, index: number) => {
+    const res = await fetch(
+      `http://localhost:5000/browse/${workoutId}/exercise/${index}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (res.ok) {
+      const updated = await res.json();
+      console.log("✅ Deleted exercise, updated workout data:", updated);
+      setHistory((prev) =>
+        prev.map((w) =>
+          w.id === workoutId
+            ? { ...w, workout_data: w.workouts.filter((_, i) => i !== index) }
+            : w
+        )
+      );
+      toast.success("Exercise deleted!");
+    } else {
+      toast.error("Failed to delete exercise.");
+    }
+  };
+
   const fetchHistory = async () => {
     const res = await fetch("http://localhost:5000/workouthistory");
     const data = await res.json();
@@ -76,6 +100,7 @@ export default function BrowseWorkoutHistory() {
             color={colors[index % colors.length]}
             onDelete={() => deleteWorkoutFromHistory(entry.id)}
             onEdit={(id) => submitEdit(id, editedExercises[id])}
+            deleteBtn={(exerciseIndex) => handleDelete(entry.id, exerciseIndex)}
           />
         ))}
       </div>

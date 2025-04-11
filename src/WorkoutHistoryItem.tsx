@@ -6,6 +6,7 @@ import { WorkoutCardContext } from "./WorkoutCardContext";
 import { useEditContext } from "./EditContext";
 
 export interface Exercise {
+  id?: number;
   name: string;
   sets: number;
   reps: number;
@@ -25,6 +26,7 @@ export interface WorkoutHistoryItemProps {
   color?: string;
   onDelete: () => void;
   onEdit: (id: number) => void;
+  deleteBtn: (id: number, index: number) => void;
 }
 
 export default function WorkoutHistoryItem({
@@ -32,15 +34,16 @@ export default function WorkoutHistoryItem({
   color,
   onDelete,
   onEdit,
+  deleteBtn,
 }: WorkoutHistoryItemProps) {
   const [expand, setExpand] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const { editedExercises } = useEditContext();
+  const { editedExercises, setEditedExercises } = useEditContext();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<Exercise[]>([]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-
-  const randomKey = () => Math.random().toString(36).substr(2, 9);
 
   const handleClickOutside = (e: MouseEvent) => {
     if (
@@ -52,6 +55,46 @@ export default function WorkoutHistoryItem({
   };
   const toggleEdit = () => {
     setIsEditing((prev) => !prev);
+  };
+
+  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    if (value.trim() === "") {
+      setSearchResults([]);
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/exercises/search?query=${value}`
+      );
+      if (!res.ok) throw new Error("Search failed :/");
+      const data = await res.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error(`Search error`, error);
+      setSearchResults([]);
+    }
+  };
+
+  const addExerciseFromSearch = (exercise: Exercise) => {
+    setEditedExercises((prev) => {
+      const current = prev[entry.id] || {};
+      const nextIndex = Object.keys(current).length;
+
+      return {
+        ...prev,
+        [entry.id]: {
+          ...current,
+          [nextIndex]: {
+            sets: exercise.sets,
+            reps: exercise.reps,
+          },
+        },
+      };
+    });
   };
 
   useEffect(() => {
@@ -103,8 +146,16 @@ export default function WorkoutHistoryItem({
           <div>
             {entry.workouts.map((exercise, index) => (
               <WorkoutCardContext.Provider
-                key={randomKey()}
-                value={{ historyId: entry.id, exerciseIndex: index }}
+                key={index}
+                value={{
+                  historyId: entry.id,
+                  exerciseIndex: index,
+                  searchTerm,
+                  setSearchTerm,
+                  searchResults,
+                  setSearchResults,
+                  // addExerciseToWorkout,
+                }}
               >
                 <WorkoutCard
                   key={index}
@@ -114,6 +165,8 @@ export default function WorkoutHistoryItem({
                   targeted_muscles={exercise.targeted_muscles}
                   equipment={exercise.equipment}
                   edit={isEditing}
+                  deleteExercise={(i) => deleteBtn(entry.id, i)}
+                  exerciseIndex={index}
                   style={{
                     borderLeft: `2px solid ${colors[index % colors.length]}`,
                     borderBottom: `2px solid ${colors[index % colors.length]}`,
@@ -122,6 +175,32 @@ export default function WorkoutHistoryItem({
                 />
               </WorkoutCardContext.Provider>
             ))}
+            {isEditing && (
+              <div className="addbox">
+                <h3>Add new exercise</h3>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <ul>
+                  {searchResults.map((workout) => (
+                    <li key={workout.id}>
+                      {workout.name}{" "}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addExerciseFromSearch(workout);
+                        }}
+                      >
+                        +
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <div className="buttonsdiv">
               <button
                 className="buttons-categories generatedworkoutbuttons"
